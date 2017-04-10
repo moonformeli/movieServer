@@ -34,7 +34,6 @@ app.set('view engine', 'ejs');
 mongoose.connect(process.env.MONGODB_URI);
 
 // DEFINE MODEL
-var Books = require('./models/books');
 var Users = require('./models/users');
 
 app.get('/', function(request, response) {
@@ -45,28 +44,49 @@ app.get('/cool', function(request, response) {
   response.send(cool());
 });
 
-// GET ALL BOOKS
-app.get('/books', function(req,res){
-  Books.find(function(err, books){
-    if(err) return res.status(500).send({error: 'database failure'});
-    res.json(books);
-  });
-});
-
 //CREATE USER
 app.post('/users/signup', function(req, res){
 	var user = req.body;
+	
+	//var state = new Users(user);
+	//res.json(state);
 	/*
-	var test = new Users({
-		id: user.id,
-		pw: user.pw
-	});
-	test.save(function(err){if(err) console.log('error')});
-	*/
+	state.save(function(error, user){
+		if(error) throw error;
+		res.json(user);
+	});*/
 	
 	Users.addUser(user, function(error, user){
 		if(error) throw error;
 		
+		res.json(user);
+	});
+});
+
+app.post('/users/login', function(req, res){
+	var user = req.body;
+	
+	var state = new Users({
+		id: user.id,
+		pw: user.pw
+	});
+	
+	var results = [];
+	
+	Users.getUsers(function(error, user){
+		if(error) throw error;
+		res.json(user);
+		return user.map(function(data){
+			results.push(data);
+		});
+	});
+	
+	//res.send(results); 
+});
+
+app.get('/users/list', function(req, res){
+	Users.getUsers(function(error, user){
+		if(error) throw error;
 		
 		res.json(user);
 	});
@@ -77,14 +97,6 @@ app.delete('/delete', function(req, res) {
 		if(error) throw error;
 		
 		res.send('deleted');
-	});
-});
-
-app.get('/users/list', function(req, res){
-	Users.getUsers(function(error, user){
-		if(error) throw error;
-		
-		res.json(user);
 	});
 });
 
