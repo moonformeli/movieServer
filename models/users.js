@@ -16,6 +16,14 @@ module.exports.addUser = function(user, cb) {
 	state.save(cb);
 };
 
+module.exports.login = function(user, cb) {
+	var state = new User({
+		id: user.id,
+		pw: user.pw
+	});
+	User.findOne(state, cb);
+}
+
 module.exports.getUsers = function(cb) {
 	console.log('user:');
 	User.find(cb);

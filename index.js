@@ -13,7 +13,7 @@ var allowCrossDomain = function(req, res, next) {
     // intercept OPTIONS method
     if ('OPTIONS' == req.method) {
       res.send(200); 
-    }
+    } 
     else {
       next();
     }
@@ -35,6 +35,7 @@ mongoose.connect(process.env.MONGODB_URI);
 
 // DEFINE MODEL
 var Users = require('./models/users');
+var Movie = require('./models/movie_info');
 
 app.get('/', function(request, response) {
   response.render('pages/index');
@@ -64,6 +65,7 @@ app.post('/users/signup', function(req, res){
 });
 
 app.post('/users/login', function(req, res){
+	
 	var user = req.body;
 	
 	var state = new Users({
@@ -84,6 +86,37 @@ app.post('/users/login', function(req, res){
 	//res.send(results); 
 });
 
+//INSERT favorite movie
+app.post('/insert/favorite/movie', function(req,res){
+	var movie_info = {
+		id: req.body.id,
+		original_title: req.body.original_title,
+		rating: req.body.rating,
+		img: req.body.img
+	};
+	//res.json(req.body);
+	
+	Movie.insertMovie(req.body, function(error, movie){
+		if(error) throw error;
+		
+		res.json(movie);
+	});
+	
+});
+
+//UPDATE favorite movie
+app.post('/update/favorite/movie', function(req, res){
+	var id = mongoose.Types.ObjectId(req.body.id); 
+	var movie_info = req.body;
+	
+	Movie.updateMovie(id, {}, movie_info, function(error, movie){
+		if(error) throw error;
+		
+		res.json(movie);
+	})
+});
+
+//GET all users registered
 app.get('/users/list', function(req, res){
 	Users.getUsers(function(error, user){
 		if(error) throw error;
@@ -92,8 +125,25 @@ app.get('/users/list', function(req, res){
 	});
 });
 
+//GET all movie lists of each individual
+app.get('/favorite/movies', function(req, res){
+	Movie.getAllLists(function(error, movies){
+		if(error) throw error;
+		
+		res.json(movies);
+	});
+});
+
 app.delete('/delete', function(req, res) {
-	Users.removeAll(function(){
+	Users.removeAll(function(error){
+		if(error) throw error;
+		
+		res.send('deleted');
+	});
+});
+
+app.delete('/favorite/delete', function(req, res) {
+	Movie.removeAll(function(error){
 		if(error) throw error;
 		
 		res.send('deleted');
