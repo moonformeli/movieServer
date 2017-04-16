@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var util = require('util');
 var Schema   = mongoose.Schema;
 
 var movie_info = new Schema({
@@ -24,18 +25,37 @@ module.exports.insertMovie = function(movie_info, cb) {
 		original_title	: movie_info.original_title,
 		rating			: movie_info.rating,
 		img				: movie_info.img,
-		test			: {
+		test			: [{
 			title: movie_info.test
-		}
+		},{title:'test'}]
 	});
 	state.save(cb);
 }
 
-module.exports.updateMovie = function(id, options, movie_info, cb) {
-	var id = { _id: id};
-	var update = { $push: {"test": {title: movie_info.title}} };
+module.exports.updateMovie = function(username, data_original, data_update, cb) {
+	
+	MovieInfo.update({'id': username, 'test.title': data_original},
+					 { '$set': {
+						'test.$.title': data_update
+					 }},
+					 cb
+	);
+	/*
+	MovieInfo.update({'id': 'pewpew', 'test.title': 'hi'},
+					 { '$set': {
+						'test.$.title': 'hello world'
+					 }},
+					 cb
+	);*/
+	//MovieInfo.update(condition, update, cb);
+	/*
+	var condition = { test: {$elemMatch: {title: movie_info.title}}};
+	var update = { $set: { "test": {title: 'hey~'} }};
 	var options = {};
-	MovieInfo.findByIdAndUpdate(id, update, options, cb);
+	*/
+	
+	//MovieInfo.findOneAndUpdate(condition, update, options, cb);
+	//MovieInfo.findOneAndUpdate(condition, update, cb);
 }
 
 module.exports.removeAll = function(cb) {

@@ -106,10 +106,12 @@ app.post('/insert/favorite/movie', function(req,res){
 
 //UPDATE favorite movie
 app.post('/update/favorite/movie', function(req, res){
-	var id = mongoose.Types.ObjectId(req.body.id); 
-	var movie_info = req.body;
+	var username = req.body.username;
+	var data_original = req.body.data_original;
+	var data_update = req.body.data_update;
+	//res.json(req.body);
 	
-	Movie.updateMovie(id, {}, movie_info, function(error, movie){
+	Movie.updateMovie(username, data_original, data_update, function(error, movie){
 		if(error) throw error;
 		
 		res.json(movie);
